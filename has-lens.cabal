@@ -1,0 +1,33 @@
+name:           has-lens
+version:        0.1
+synopsis:       Overloading of fields.
+license:        BSD3
+license-file:   LICENSE
+author:         Shane O'Brien
+maintainer:     shane@duairc.com
+stability:      Experimental
+category:       Data
+cabal-version:  >= 1.6
+build-type:     Simple
+homepage:       http://github.com/duairc/has-lens
+bug-reports:    http://github.com/duairc/has-lens/issues
+
+extra-source-files:
+  CONTRIBUTORS,
+  LICENSE
+
+library
+  hs-source-dirs:
+    src
+
+  exposed-modules:
+    Data.Has.Lens
+
+  build-depends:
+    base >= 2 && < 5
+
+  ghc-options: -Wall
+
+source-repository head
+  type:     git
+  location: http://github.com/duairc/has-lens

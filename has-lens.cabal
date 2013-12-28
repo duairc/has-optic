@@ -1,6 +1,6 @@
 name:           has-lens
 version:        0.1
-synopsis:       Overloading of fields.
+synopsis:       Overloaded lenses and prisms for record fields and constructors.
 license:        BSD3
 license-file:   LICENSE
 author:         Shane O'Brien
@@ -21,10 +21,15 @@ library
     src
 
   exposed-modules:
-    Data.Has.Lens
+    Control.Lens.Has
 
   build-depends:
     base >= 2 && < 5
+
+  if impl(ghc < 7.6)
+    build-depends:
+      symbols >= 0.1 && < 0.2
+
 
   ghc-options: -Wall
 

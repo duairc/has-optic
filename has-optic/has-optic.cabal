@@ -42,12 +42,12 @@ library
     Data.Optic.TH
 
   other-modules:
-    Data.Optic.Instances.Anonymous
+--    Data.Optic.Instances.Anonymous
     Data.Optic.Instances.Tuple
 
   build-depends:
-    anonymous-types,
-    anonymous-types-lens,
+--    anonymous-types,
+--    anonymous-types-lens,
     base >= 4.2 && < 5,
 --    bifunctors,
 --    comonad,

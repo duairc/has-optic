@@ -13,6 +13,18 @@ import           Data.Optic.Core (Has, Optic, optic')
 
 -- template-haskell ----------------------------------------------------------
 import           Language.Haskell.TH
+                     ( Body (NormalB)
+                     , Clause (Clause)
+                     , Dec (FunD, SigD)
+                     , Exp (AppE, VarE)
+#if !MIN_VERSION_template_haskell(2, 10, 0)
+                     , Pred (ClassP)
+#endif
+                     , Q
+                     , Type (AppT, ConT, ForallT, VarT)
+                     , TyVarBndr (PlainTV)
+                     , mkName
+                     )
 
 
 -- types-th ------------------------------------------------------------------

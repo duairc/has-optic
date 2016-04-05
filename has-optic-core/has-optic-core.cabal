@@ -1,0 +1,57 @@
+name:           has-optic-core
+version:        0.1
+synopsis:       Type class for overloaded optical accessors (lenses and prisms).
+license:        MPL-2.0
+license-file:   LICENSE
+author:         Shane O'Brien
+maintainer:     shane@duairc.com
+stability:      Experimental
+category:       Data
+cabal-version:  >= 1.6
+build-type:     Simple
+homepage:       http://github.com/duairc/has-optic
+bug-reports:    http://github.com/duairc/has-optic/issues
+description:
+  This package contains only the @Has@ type class and no instances. This is so
+  that libraries that wish to provide overloaded lenses for their datatypes
+  can do so without incurring significant dependencies.
+  .
+  Instances are provided by the @has-optic@ package, as well as Template
+  Haskell splices that will derive instances of @Has@ for your datatypes
+  automatically and generate overloaded optical accessors.
+  .
+  (Theoretically, we could at least provide lenses for product types from
+  @base@, but sum types need prisms which require a dependency on the
+  @profunctors@ package, which itself has several transitive dependencies.
+  We figured it was simpler just to put all the instances in a single package.
+  In any case, library authors providing instances for their datatypes (the
+  audience this package is aimed for) won't necessarily need these instances.)
+
+extra-source-files:
+  CONTRIBUTORS,
+  LICENSE
+
+library
+  hs-source-dirs:
+    src
+
+  include-dirs:
+    include
+
+  exposed-modules:
+    Data.Optic.Core
+
+  if impl(ghc >= 7.8)
+    cpp-options: -DAmbiguousTypes
+
+  if impl(ghc >= 7.6)
+    cpp-options: -DDataPolyKinds
+
+  if impl(ghc >= 7.2)
+    cpp-options: -DSafeHaskell
+
+  ghc-options: -Wall
+
+source-repository head
+  type:     git
+  location: http://github.com/duairc/has-optic

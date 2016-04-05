@@ -1,0 +1,80 @@
+name:           has-optic
+version:        0.1
+synopsis:       Type class, instances and Template Haskell splices for overloaded optical accessors (lenses and prisms).
+license:        MPL-2.0
+license-file:   LICENSE
+author:         Shane O'Brien
+maintainer:     shane@duairc.com
+stability:      Experimental
+category:       Data
+cabal-version:  >= 1.6
+build-type:     Simple
+homepage:       http://github.com/duairc/has-optic
+bug-reports:    http://github.com/duairc/has-optic/issues
+description:
+  This package re-exports and provides instances of the @Has@ type class
+  defined in the @has-optic-core@ package. Instances are provided for sum and
+  product datatypes in the @anonymous-types@, @base@, @bifunctors@, @comonad@,
+  @containers@, @contravariant@, @profunctors@, @tagged@, @template-haskell@
+  and @transformers@ packages.
+  .
+  Also provided are Template Haskell splices which can automatically derive
+  instances of @Has@ for your datatypes automatically and generate overloaded
+  optical accessors that take advantage of these instances.
+  .
+  (Library authors who wish to provide instances of @Has@ for their library,
+  but wish to avoid dependencies on the above package can depend on the
+  @has-optic-core@ package instead.)
+
+extra-source-files:
+  CONTRIBUTORS,
+  LICENSE
+
+library
+  hs-source-dirs:
+    src
+
+  include-dirs:
+    include
+
+  exposed-modules:
+    Data.Optic
+    Data.Optic.TH
+
+  other-modules:
+    Data.Optic.Instances.Anonymous
+    Data.Optic.Instances.Tuple
+
+  build-depends:
+    anonymous-types,
+    anonymous-types-lens,
+    base >= 4.2 && < 5,
+--    bifunctors,
+--    comonad,
+--    containers,
+--    contravariant,
+    has-optic-core == 0.1,
+--    profunctors,
+--    tagged,
+    template-haskell >= 2.4 && < 3,
+    transformers,
+    types >= 0.1 && < 0.2,
+    types-th >= 0.1 && < 0.2
+
+  if impl(ghc >= 7.8)
+    cpp-options: -DAmbiguousTypes
+
+  if impl(ghc >= 7.8)
+    cpp-options: -DUseTypeLits
+
+  if impl(ghc >= 7.6)
+    cpp-options: -DDataPolyKinds
+
+  if impl(ghc >= 7.2)
+    cpp-options: -DSafeHaskell
+
+  ghc-options: -Wall
+
+source-repository head
+  type:     git
+  location: http://github.com/duairc/has-optic

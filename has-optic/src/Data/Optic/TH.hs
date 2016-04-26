@@ -4,8 +4,13 @@
 module Data.Optic.TH
     ( accessor
     , accessor_
+    , accessors
     )
 where
+
+-- base ----------------------------------------------------------------------
+import           Data.Foldable (fold)
+
 
 -- has-optic-core ------------------------------------------------------------
 import           Data.Optic.Core (Has, Optic, optic')
@@ -51,3 +56,8 @@ accessor name key = do
 ------------------------------------------------------------------------------
 accessor_ :: String -> Q [Dec]
 accessor_ name = accessor name (string name)
+
+
+------------------------------------------------------------------------------
+accessors :: [(String, String)] -> Q [Dec]
+accessors = fmap fold . traverse (\(a, b) -> accessor a (string b))

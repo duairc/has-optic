@@ -24,13 +24,13 @@ module Data.Optic.Instances.Anonymous
     ()
 where
 
--- anonymous-types -----------------------------------------------------------
+-- anonymous-data ------------------------------------------------------------
 import           Data.Anonymous.Product (Record, Tuple)
 import           Data.Field (Field (Field))
 import           Data.Uncurry (Uncurry (Uncurry))
 
 
--- anonymous-types-lens ------------------------------------------------------
+-- anonymous-data-lens -------------------------------------------------------
 import qualified Data.Anonymous.Product.Lens as P (Key, key', Index, index')
 
 

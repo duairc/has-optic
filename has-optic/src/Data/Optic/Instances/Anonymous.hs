@@ -26,8 +26,7 @@ where
 
 -- anonymous-data ------------------------------------------------------------
 import           Data.Anonymous.Product (Record, Tuple)
-import           Data.Field (Field (Field))
-import           Data.Uncurry (Uncurry (Uncurry))
+import qualified Data.Field as F (traverse)
 
 
 -- anonymous-data-lens -------------------------------------------------------
@@ -75,7 +74,7 @@ instance (Functor f, P.Key n as as a a) => Has n (->) f
     a
 #endif
   where
-    optic' p f = P.key' p (\(Uncurry (Field a)) -> Uncurry . Field <$> f a)
+    optic' p = P.key' p . F.traverse
 
 #ifdef DataPolyKinds
 
@@ -83,6 +82,6 @@ instance (Functor f, P.Key n as as a a) => Has n (->) f
 instance __OVERLAPS__ (Functor f, P.Index n as bs '(s, a) '(s, b)) =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' p f = P.index' p (\(Uncurry (Field a)) -> Uncurry . Field <$> f a)
+    optic' p = P.index' p . F.traverse
 
 #endif

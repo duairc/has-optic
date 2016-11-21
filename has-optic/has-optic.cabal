@@ -47,7 +47,6 @@ library
 
   build-depends:
     anonymous-data,
-    anonymous-data-lens,
     base >= 4.2 && < 5,
 --    bifunctors,
 --    comonad,

@@ -25,18 +25,20 @@ module Data.Optic.Instances.Anonymous
 where
 
 -- anonymous-data ------------------------------------------------------------
-import           Data.Anonymous.Product (Record, Tuple)
+import           Data.Anonymous.Product
+                     ( Record
+                     , Tuple
+                     , LookupIndex'
+                     , UpdateIndex'
+                     , index'
+                     , LookupKey'
+                     , UpdateKey'
+                     , key'
+                     )
 import qualified Data.Field as F (traverse)
 
 
--- anonymous-data-lens -------------------------------------------------------
-import qualified Data.Anonymous.Product.Lens as P (Key, key', Index, index')
-
-
 -- base ----------------------------------------------------------------------
-#if !MIN_VERSION_base(4, 8, 0)
-import           Data.Functor ((<$>))
-#endif
 import           Data.Functor.Identity (Identity (Identity))
 
 
@@ -45,37 +47,50 @@ import           Data.Optic.Core (Has, optic')
 
 
 -- types ---------------------------------------------------------------------
+import           GHC.TypeLits.Compat ((:-), One)
 import           Type.Meta (Proxy (Proxy))
-import           GHC.TypeLits.Compat ((:-))
-
-
--- types-th ------------------------------------------------------------------
-import           Type.TH ()
+import           Type.Tuple.Pair (Pair)
 
 
 ------------------------------------------------------------------------------
-instance (Functor f, P.Index (n :- $(1)) as bs a b) =>
+instance
+    ( Functor f
+    , LookupIndex' (n :- One) as a
+    , UpdateIndex' (n :- One) b as bs
+    )
+  =>
     Has n (->) f (Tuple as) (Tuple bs) a b
   where
-    optic' _ f = P.index' proxy (\(Identity a) -> Identity <$> f a)
+    optic' _ f = index' proxy (\(Identity a) -> fmap Identity (f a))
       where
-        proxy = Proxy :: Proxy (n :- $(1))
+        proxy = Proxy :: Proxy (n :- One)
 
 
 ------------------------------------------------------------------------------
-#if __GLASGOW_HASKELL__ >= 800
-instance (Functor f, P.Key n as bs a b) =>
+instance
+    ( Functor f
+    , LookupKey' n as a
+    , UpdateKey' n b as bs
+    )
+  =>
     Has n (->) f (Record as) (Record bs) a b
-#else
-instance (Functor f, P.Key n as as a a) => Has n (->) f
-    (Record as)
-    (Record as)
-    a
-    a
-#endif
   where
-    optic' p = P.key' p . F.traverse
+    optic' p = key' p . F.traverse
+#ifdef DataPolyKinds
 
+
+------------------------------------------------------------------------------
+instance
+    ( Functor f
+    , LookupIndex' n as (Pair s a)
+    , UpdateIndex' n (Pair s b) as bs
+    )
+  =>
+    Has n (->) f (Record as) (Record bs) a b
+  where
+    optic' p = index' p . F.traverse
+#endif
+{-
 #ifdef DataPolyKinds
 
 ------------------------------------------------------------------------------
@@ -85,3 +100,4 @@ instance __OVERLAPS__ (Functor f, P.Index n as bs '(s, a) '(s, b)) =>
     optic' p = P.index' p . F.traverse
 
 #endif
+-}

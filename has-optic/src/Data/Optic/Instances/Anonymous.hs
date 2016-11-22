@@ -6,12 +6,12 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 #ifdef DataPolyKinds
-#include "overlap.h"
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE PolyKinds #-}
 #endif
@@ -36,6 +36,9 @@ import           Data.Anonymous.Product
                      , key'
                      )
 import qualified Data.Field as F (traverse)
+#ifdef ClosedTypeFamilies
+import           Type.List.Fields (LookupIndex, LookupKey, UpdateIndex, UpdateKey)
+#endif
 
 
 -- base ----------------------------------------------------------------------
@@ -57,6 +60,10 @@ instance
     ( Functor f
     , LookupIndex' (n :- One) as a
     , UpdateIndex' (n :- One) b as bs
+#ifdef ClosedTypeFamilies
+    , b ~ LookupIndex (n :- One) bs
+    , as ~ UpdateIndex (n :- One) a bs
+#endif
     )
   =>
     Has n (->) f (Tuple as) (Tuple bs) a b
@@ -71,6 +78,10 @@ instance
     ( Functor f
     , LookupKey' n as a
     , UpdateKey' n b as bs
+#ifdef ClosedTypeFamilies
+    , b ~ LookupKey n bs
+    , as ~ UpdateKey n a bs
+#endif
     )
   =>
     Has n (->) f (Record as) (Record bs) a b
@@ -82,22 +93,15 @@ instance
 ------------------------------------------------------------------------------
 instance
     ( Functor f
-    , LookupIndex' n as (Pair s a)
-    , UpdateIndex' n (Pair s b) as bs
+    , LookupIndex' (n :- One) as (Pair s a)
+    , UpdateIndex' (n :- One) (Pair s b) as bs
+#ifdef ClosedTypeFamilies
+    , Pair s b ~ LookupIndex (n :- One) bs
+    , as ~ UpdateIndex (n :- One) (Pair s a) bs
+#endif
     )
   =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' p = index' p . F.traverse
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . F.traverse
 #endif
-{-
-#ifdef DataPolyKinds
-
-------------------------------------------------------------------------------
-instance __OVERLAPS__ (Functor f, P.Index n as bs '(s, a) '(s, b)) =>
-    Has n (->) f (Record as) (Record bs) a b
-  where
-    optic' p = P.index' p . F.traverse
-
-#endif
--}

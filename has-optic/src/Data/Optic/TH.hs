@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Data.Optic.TH
     ( accessor
@@ -60,4 +61,4 @@ accessor_ name = accessor name (string name)
 
 ------------------------------------------------------------------------------
 accessors :: [(String, String)] -> Q [Dec]
-accessors = fmap fold . traverse (\(a, b) -> accessor a (string b))
+accessors = fmap fold . mapM (\(a, b) -> accessor a (string b))

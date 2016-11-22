@@ -37,7 +37,12 @@ import           Data.Anonymous.Product
                      )
 import qualified Data.Field as F (traverse)
 #ifdef ClosedTypeFamilies
-import           Type.List.Fields (LookupIndex, LookupKey, UpdateIndex, UpdateKey)
+import           Type.List.Fields
+                     ( LookupIndex
+                     , LookupKey
+                     , UpdateIndex
+                     , UpdateKey
+                     )
 #endif
 
 

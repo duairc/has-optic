@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
@@ -28,6 +29,7 @@ where
 import           Data.Anonymous.Product
                      ( Record
                      , Tuple
+                     , Options
                      , LookupIndex'
                      , UpdateIndex'
                      , index'
@@ -35,7 +37,7 @@ import           Data.Anonymous.Product
                      , UpdateKey'
                      , key'
                      )
-import qualified Data.Field as F (traverse)
+import           Data.Field (Field (Field), Option (Option))
 #ifdef ClosedTypeFamilies
 import           Type.List.Fields
                      ( LookupIndex
@@ -46,18 +48,26 @@ import           Type.List.Fields
 #endif
 
 
--- base ----------------------------------------------------------------------
-import           Data.Functor.Identity (Identity (Identity))
+-- has-optic -----------------------------------------------------------------
+import           Data.Optic.Instances.Functors ()
 
 
 -- has-optic-core ------------------------------------------------------------
 import           Data.Optic.Core (Has, optic')
 
 
+-- profunctors ---------------------------------------------------------------
+import           Data.Profunctor (Profunctor, dimap)
+
+
 -- types ---------------------------------------------------------------------
-import           GHC.TypeLits.Compat ((:-), One)
+import           GHC.TypeLits.Compat (KnownSymbol, (:-), One)
 import           Type.Meta (Proxy (Proxy))
 import           Type.Tuple.Pair (Pair)
+
+
+-- types-th ------------------------------------------------------------------
+import           Type.TH ()
 
 
 ------------------------------------------------------------------------------
@@ -73,9 +83,7 @@ instance
   =>
     Has n (->) f (Tuple as) (Tuple bs) a b
   where
-    optic' _ f = index' proxy (\(Identity a) -> fmap Identity (f a))
-      where
-        proxy = Proxy :: Proxy (n :- One)
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
 
 
 ------------------------------------------------------------------------------
@@ -83,6 +91,7 @@ instance
     ( Functor f
     , LookupKey' n as a
     , UpdateKey' n b as bs
+    , KnownSymbol n
 #ifdef ClosedTypeFamilies
     , b ~ LookupKey n bs
     , as ~ UpdateKey n a bs
@@ -91,7 +100,7 @@ instance
   =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' p = key' p . F.traverse
+    optic' p = key' p . optic' one
 #ifdef DataPolyKinds
 
 
@@ -100,6 +109,7 @@ instance
     ( Functor f
     , LookupIndex' (n :- One) as (Pair s a)
     , UpdateIndex' (n :- One) (Pair s b) as bs
+    , KnownSymbol s
 #ifdef ClosedTypeFamilies
     , Pair s b ~ LookupIndex (n :- One) bs
     , as ~ UpdateIndex (n :- One) (Pair s a) bs
@@ -108,5 +118,88 @@ instance
   =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' _ = index' (Proxy :: Proxy (n :- One)) . F.traverse
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
 #endif
+
+
+------------------------------------------------------------------------------
+instance
+    ( Functor f
+    , LookupKey' n as a
+    , UpdateKey' n b as bs
+    , KnownSymbol n
+#ifdef ClosedTypeFamilies
+    , b ~ LookupKey n bs
+    , as ~ UpdateKey n a bs
+#endif
+    )
+  =>
+    Has n (->) f (Options as) (Options bs) (Maybe a) (Maybe b)
+  where
+    optic' p = key' p . optic' one
+#ifdef DataPolyKinds
+
+
+------------------------------------------------------------------------------
+instance
+    ( Functor f
+    , LookupIndex' (n :- One) as (Pair s a)
+    , UpdateIndex' (n :- One) (Pair s b) as bs
+    , KnownSymbol s
+#ifdef ClosedTypeFamilies
+    , Pair s b ~ LookupIndex (n :- One) bs
+    , as ~ UpdateIndex (n :- One) (Pair s a) bs
+#endif
+    )
+  =>
+    Has n (->) f (Options as) (Options bs) (Maybe a) (Maybe b)
+  where
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
+#endif
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f, KnownSymbol s) =>
+    Has One p f (Field (Pair s a)) (Field (Pair s b)) a b
+  where
+    optic' _ = dimap (\(Field a) -> a) (fmap Field)
+    {-# INLINE optic' #-}
+
+
+#ifdef DataPolyKinds
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f, KnownSymbol s) => Has s p f
+    (Field (Pair s a))
+    (Field (Pair s b))
+    a
+    b
+  where
+    optic' _ = dimap (\(Field a) -> a) (fmap Field)
+    {-# INLINE optic' #-}
+
+
+#endif
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f, KnownSymbol s) =>
+    Has One p f (Option (Pair s a)) (Option (Pair s b)) (Maybe a) (Maybe b)
+  where
+    optic' _ = dimap (\(Option a) -> a) (fmap Option)
+    {-# INLINE optic' #-}
+
+
+#ifdef DataPolyKinds
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f, KnownSymbol s) => Has s p f
+    (Option (Pair s a))
+    (Option (Pair s b))
+    (Maybe a)
+    (Maybe b)
+  where
+    optic' _ = dimap (\(Option a) -> a) (fmap Option)
+    {-# INLINE optic' #-}
+
+
+#endif
+------------------------------------------------------------------------------
+one :: Proxy One
+one = Proxy

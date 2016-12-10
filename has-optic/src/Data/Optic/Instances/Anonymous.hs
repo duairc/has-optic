@@ -37,7 +37,12 @@ import           Data.Anonymous.Product
                      , UpdateKey'
                      , key'
                      )
-import           Data.Field (Field (Field), Option (Option))
+import           Data.Field
+                     ( Field (Field)
+                     , Option (Option)
+                     , Field1 (Field1)
+                     , Option1 (Option1)
+                     )
 #ifdef ClosedTypeFamilies
 import           Type.List.Fields
                      ( LookupIndex
@@ -200,6 +205,50 @@ instance (Profunctor p, Functor f, KnownSymbol s) => Has s p f
 
 
 #endif
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) => Has One p f
+    (Field1 s a)
+    (Field1 s b)
+    (Field (Pair s a))
+    (Field (Pair s b))
+  where
+    optic' _ = dimap (\(Field1 a) -> a) (fmap Field1)
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) => Has $("Field1") p f
+    (Field1 s a)
+    (Field1 s b)
+    (Field (Pair s a))
+    (Field (Pair s b))
+  where
+    optic' _ = dimap (\(Field1 a) -> a) (fmap Field1)
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) => Has One p f
+    (Option1 s a)
+    (Option1 s b)
+    (Option (Pair s a))
+    (Option (Pair s b))
+  where
+    optic' _ = dimap (\(Option1 a) -> a) (fmap Option1)
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) => Has $("Option1") p f
+    (Option1 s a)
+    (Option1 s b)
+    (Option (Pair s a))
+    (Option (Pair s b))
+  where
+    optic' _ = dimap (\(Option1 a) -> a) (fmap Option1)
+    {-# INLINE optic' #-}
+
+
 ------------------------------------------------------------------------------
 one :: Proxy One
 one = Proxy

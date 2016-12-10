@@ -43,17 +43,18 @@ library
 
   other-modules:
     Data.Optic.Instances.Anonymous
+    Data.Optic.Instances.Functors
     Data.Optic.Instances.Tuple
 
   build-depends:
-    anonymous-data,
+    anonymous-data >= 0.1 && < 0.2,
     base >= 4.2 && < 5,
 --    bifunctors,
 --    comonad,
 --    containers,
 --    contravariant,
     has-optic-core == 0.1,
---    profunctors,
+    profunctors >= 3.2 && < 6,
 --    tagged,
     template-haskell >= 2.4 && < 3,
     transformers,

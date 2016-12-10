@@ -27,6 +27,7 @@ where
 
 -- has-optic -----------------------------------------------------------------
 import           Data.Optic.Instances.Anonymous ()
+import           Data.Optic.Instances.Functors ()
 import           Data.Optic.Instances.Tuple ()
 import           Data.Optic.TH (accessor)
 

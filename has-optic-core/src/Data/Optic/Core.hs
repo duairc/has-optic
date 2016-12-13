@@ -3,26 +3,24 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-#ifdef SafeHaskell
-{-# LANGUAGE Safe #-}
+#ifdef DataPolyKinds
+{-# LANGUAGE PolyKinds #-}
 #endif
 
 #ifdef AmbiguousTypes
 {-# LANGUAGE AllowAmbiguousTypes #-}
 #endif
 
-#ifdef DataPolyKinds
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+#ifdef SafeHaskell
+{-# LANGUAGE Safe #-}
 #endif
 
 module Data.Optic.Core
     ( Optic
     , Has (optic')
-#ifdef AmbiguousTypes
     , optic
-#endif
     )
 where
 
@@ -47,7 +45,6 @@ class Has n
     optic' :: proxy n -> Optic p f s t a b
 
 
-#ifdef AmbiguousTypes
 ------------------------------------------------------------------------------
 data Proxy a = Proxy
 
@@ -55,4 +52,3 @@ data Proxy a = Proxy
 ------------------------------------------------------------------------------
 optic :: forall n p f s t a b. Has n p f s t a b => Optic p f s t a b
 optic = optic' (Proxy :: Proxy n)
-#endif

@@ -17,7 +17,7 @@
 {-# LANGUAGE Trustworthy #-}
 #endif
 
-module Data.Optic.Instances.Functors
+module Data.Optic.Instances.Functor
     ()
 where
 
@@ -25,6 +25,10 @@ where
 import           Control.Applicative (Const (Const))
 import           Data.Functor.Compose (Compose (Compose))
 import           Data.Functor.Identity (Identity (Identity))
+
+
+-- has-optic -----------------------------------------------------------------
+import           Data.Optic.Accessors (_Compose, _Const, _Identity)
 
 
 -- has-optic-core ------------------------------------------------------------
@@ -35,20 +39,8 @@ import           Data.Optic.Core (Has, optic')
 import           Data.Profunctor (Profunctor, dimap)
 
 
--- types ---------------------------------------------------------------------
-import           GHC.TypeLits.Compat (One)
-
-
 -- types-th ------------------------------------------------------------------
 import           Type.TH ()
-
-
-------------------------------------------------------------------------------
-instance (Profunctor p, Functor f) =>
-    Has One p f (Compose g h a) (Compose k l b) (g (h a)) (k (l b))
-  where
-    optic' _ = dimap (\(Compose a) -> a) (fmap Compose)
-    {-# INLINE optic' #-}
 
 
 ------------------------------------------------------------------------------
@@ -61,9 +53,20 @@ instance (Profunctor p, Functor f) =>
 
 ------------------------------------------------------------------------------
 instance (Profunctor p, Functor f) =>
-    Has One p f (Const a c) (Const b c) a b
+    Has $(1) p f (Compose g h a) (Compose k l b) (g (h a)) (k (l b))
   where
-    optic' _ = dimap (\(Const a) -> a) (fmap Const)
+    optic' _ = _Compose
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) => Has $("getCompose") p f
+    (Compose g h a)
+    (Compose k l b)
+    (g (h a))
+    (k (l b))
+  where
+    optic' _ = _Compose
     {-# INLINE optic' #-}
 
 
@@ -77,9 +80,17 @@ instance (Profunctor p, Functor f) =>
 
 ------------------------------------------------------------------------------
 instance (Profunctor p, Functor f) =>
-    Has One p f (Identity a) (Identity b) a b
+    Has $(1) p f (Const a c) (Const b c) a b
   where
-    optic' _ = dimap (\(Identity a) -> a) (fmap Identity)
+    optic' _ = _Const
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) =>
+    Has $("getConst") p f (Const a c) (Const b c) a b
+  where
+    optic' _ = _Const
     {-# INLINE optic' #-}
 
 
@@ -88,4 +99,20 @@ instance (Profunctor p, Functor f) =>
     Has $("Identity") p f (Identity a) (Identity b) a b
   where
     optic' _ = dimap (\(Identity a) -> a) (fmap Identity)
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) =>
+    Has $(1) p f (Identity a) (Identity b) a b
+  where
+    optic' _ = _Identity
+    {-# INLINE optic' #-}
+
+
+------------------------------------------------------------------------------
+instance (Profunctor p, Functor f) =>
+    Has $("runIdentity") p f (Identity a) (Identity b) a b
+  where
+    optic' _ = _Identity
     {-# INLINE optic' #-}

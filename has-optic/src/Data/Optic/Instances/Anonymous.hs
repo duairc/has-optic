@@ -37,12 +37,7 @@ import           Data.Anonymous.Product
                      , UpdateKey'
                      , key'
                      )
-import           Data.Field
-                     ( Field (Field)
-                     , Option (Option)
-                     , Field1 (Field1)
-                     , Option1 (Option1)
-                     )
+import           Data.Labeled (Labeled (Labeled), Labeled1 (Labeled1))
 #ifdef ClosedTypeFamilies
 import           Type.List.Fields
                      ( LookupIndex
@@ -54,7 +49,9 @@ import           Type.List.Fields
 
 
 -- has-optic -----------------------------------------------------------------
-import           Data.Optic.Instances.Functors ()
+import           Data.Optic.Accessors (_1, _First, _Identity, _Labeled1)
+import           Data.Optic.Instances.Functor ()
+import           Data.Optic.Instances.Monoid ()
 
 
 -- has-optic-core ------------------------------------------------------------
@@ -88,7 +85,7 @@ instance
   =>
     Has n (->) f (Tuple as) (Tuple bs) a b
   where
-    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . _1
 
 
 ------------------------------------------------------------------------------
@@ -105,7 +102,7 @@ instance
   =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' p = key' p . optic' one
+    optic' p = key' p . _1 . _Identity
 #ifdef DataPolyKinds
 
 
@@ -123,7 +120,7 @@ instance
   =>
     Has n (->) f (Record as) (Record bs) a b
   where
-    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . _1 . _Identity
 #endif
 
 
@@ -141,7 +138,7 @@ instance
   =>
     Has n (->) f (Options as) (Options bs) (Maybe a) (Maybe b)
   where
-    optic' p = key' p . optic' one
+    optic' p = key' p . _1 . _First
 #ifdef DataPolyKinds
 
 
@@ -159,96 +156,45 @@ instance
   =>
     Has n (->) f (Options as) (Options bs) (Maybe a) (Maybe b)
   where
-    optic' _ = index' (Proxy :: Proxy (n :- One)) . optic' one
+    optic' _ = index' (Proxy :: Proxy (n :- One)) . _1 . _First
 #endif
 
 
 ------------------------------------------------------------------------------
 instance (Profunctor p, Functor f, KnownSymbol s) =>
-    Has One p f (Field (Pair s a)) (Field (Pair s b)) a b
+    Has One p f (Labeled g (Pair s a)) (Labeled h (Pair s b)) (g a) (h b)
   where
-    optic' _ = dimap (\(Field a) -> a) (fmap Field)
+    optic' _ = dimap (\(Labeled a) -> a) (fmap Labeled)
     {-# INLINE optic' #-}
 
 
 #ifdef DataPolyKinds
 ------------------------------------------------------------------------------
-instance (Profunctor p, Functor f, KnownSymbol s) => Has s p f
-    (Field (Pair s a))
-    (Field (Pair s b))
-    a
-    b
+instance (Profunctor p, Functor f, KnownSymbol s) => 
+    Has s p f (Labeled g (Pair s a)) (Labeled h (Pair s b)) (g a) (h b)
   where
-    optic' _ = dimap (\(Field a) -> a) (fmap Field)
+    optic' _ = _1
     {-# INLINE optic' #-}
 
 
 #endif
 ------------------------------------------------------------------------------
-instance (Profunctor p, Functor f, KnownSymbol s) =>
-    Has One p f (Option (Pair s a)) (Option (Pair s b)) (Maybe a) (Maybe b)
+instance (Profunctor p, Functor f) => Has $("Labeled1") p f
+    (Labeled1 g s a)
+    (Labeled1 h s b)
+    (Labeled g (Pair s a))
+    (Labeled h (Pair s b))
   where
-    optic' _ = dimap (\(Option a) -> a) (fmap Option)
-    {-# INLINE optic' #-}
-
-
-#ifdef DataPolyKinds
-------------------------------------------------------------------------------
-instance (Profunctor p, Functor f, KnownSymbol s) => Has s p f
-    (Option (Pair s a))
-    (Option (Pair s b))
-    (Maybe a)
-    (Maybe b)
-  where
-    optic' _ = dimap (\(Option a) -> a) (fmap Option)
-    {-# INLINE optic' #-}
-
-
-#endif
-------------------------------------------------------------------------------
-instance (Profunctor p, Functor f) => Has One p f
-    (Field1 s a)
-    (Field1 s b)
-    (Field (Pair s a))
-    (Field (Pair s b))
-  where
-    optic' _ = dimap (\(Field1 a) -> a) (fmap Field1)
-    {-# INLINE optic' #-}
-
-
-------------------------------------------------------------------------------
-instance (Profunctor p, Functor f) => Has $("Field1") p f
-    (Field1 s a)
-    (Field1 s b)
-    (Field (Pair s a))
-    (Field (Pair s b))
-  where
-    optic' _ = dimap (\(Field1 a) -> a) (fmap Field1)
+    optic' _ = dimap (\(Labeled1 a) -> a) (fmap Labeled1)
     {-# INLINE optic' #-}
 
 
 ------------------------------------------------------------------------------
 instance (Profunctor p, Functor f) => Has One p f
-    (Option1 s a)
-    (Option1 s b)
-    (Option (Pair s a))
-    (Option (Pair s b))
+    (Labeled1 g s a)
+    (Labeled1 h s b)
+    (Labeled g (Pair s a))
+    (Labeled h (Pair s b))
   where
-    optic' _ = dimap (\(Option1 a) -> a) (fmap Option1)
+    optic' _ = _Labeled1
     {-# INLINE optic' #-}
-
-
-------------------------------------------------------------------------------
-instance (Profunctor p, Functor f) => Has $("Option1") p f
-    (Option1 s a)
-    (Option1 s b)
-    (Option (Pair s a))
-    (Option (Pair s b))
-  where
-    optic' _ = dimap (\(Option1 a) -> a) (fmap Option1)
-    {-# INLINE optic' #-}
-
-
-------------------------------------------------------------------------------
-one :: Proxy One
-one = Proxy

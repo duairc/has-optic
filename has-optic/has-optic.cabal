@@ -69,7 +69,7 @@ library
       semigroups >= 0.5 && < 1
 
   if impl(ghc >= 7.8)
-    cpp-options: -DUseAmbiguousTypes
+    cpp-options: -DAmbiguousTypes
 
   if impl(ghc >= 7.8)
     cpp-options: -DUseTypeLits

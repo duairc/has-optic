@@ -19,9 +19,7 @@ module Data.Optic
     ( Optic
     , Has
     , optic'
-#ifdef AmbiguousTypes
     , optic
-#endif
     , module Data.Optic.Accessors
     )
 where
@@ -36,11 +34,4 @@ import           Data.Optic.Instances.Tuple ()
 
 
 -- has-optic-core ------------------------------------------------------------
-import           Data.Optic.Core
-                     ( Has
-                     , Optic
-                     , optic'
-#ifdef AmbiguousTypes
-                     , optic
-#endif
-                     )
+import           Data.Optic.Core (Has, Optic, optic', optic)

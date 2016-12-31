@@ -50,5 +50,5 @@ data Proxy a = Proxy
 
 
 ------------------------------------------------------------------------------
-optic :: forall n p f s t a b. Has n p f s t a b => Optic p f s t a b
+optic :: forall n s p f t a b. Has n p f s t a b => Optic p f s t a b
 optic = optic' (Proxy :: Proxy n)

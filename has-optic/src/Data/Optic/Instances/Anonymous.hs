@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverlappingInstances #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -20,6 +21,8 @@
 #ifdef SafeHaskell
 {-# LANGUAGE Trustworthy #-}
 #endif
+
+#include "overlap.h"
 
 module Data.Optic.Instances.Anonymous
     ()
@@ -63,8 +66,8 @@ import           Data.Profunctor (Profunctor, dimap)
 
 
 -- types ---------------------------------------------------------------------
-import           GHC.TypeLits.Compat (KnownSymbol, (:-), One)
-import           Type.Meta (Proxy (Proxy))
+import           GHC.TypeLits.Compat ((:-), One)
+import           Type.Meta (Known, Proxy (Proxy))
 import           Type.Tuple.Pair (Pair)
 
 
@@ -93,7 +96,7 @@ instance
     ( Functor f
     , LookupKey' n as a
     , UpdateKey' n b as bs
-    , KnownSymbol n
+    , Known n
 #ifdef ClosedTypeFamilies
     , b ~ LookupKey n bs
     , as ~ UpdateKey n a bs
@@ -107,11 +110,11 @@ instance
 
 
 ------------------------------------------------------------------------------
-instance
+instance __OVERLAPS__
     ( Functor f
     , LookupIndex' (n :- One) as (Pair s a)
     , UpdateIndex' (n :- One) (Pair s b) as bs
-    , KnownSymbol s
+    , Known s
 #ifdef ClosedTypeFamilies
     , Pair s b ~ LookupIndex (n :- One) bs
     , as ~ UpdateIndex (n :- One) (Pair s a) bs
@@ -129,7 +132,7 @@ instance
     ( Functor f
     , LookupKey' n as a
     , UpdateKey' n b as bs
-    , KnownSymbol n
+    , Known n
 #ifdef ClosedTypeFamilies
     , b ~ LookupKey n bs
     , as ~ UpdateKey n a bs
@@ -143,11 +146,11 @@ instance
 
 
 ------------------------------------------------------------------------------
-instance
+instance __OVERLAPS__
     ( Functor f
     , LookupIndex' (n :- One) as (Pair s a)
     , UpdateIndex' (n :- One) (Pair s b) as bs
-    , KnownSymbol s
+    , Known s
 #ifdef ClosedTypeFamilies
     , Pair s b ~ LookupIndex (n :- One) bs
     , as ~ UpdateIndex (n :- One) (Pair s a) bs
@@ -161,7 +164,7 @@ instance
 
 
 ------------------------------------------------------------------------------
-instance (Profunctor p, Functor f, KnownSymbol s) =>
+instance (Profunctor p, Functor f, Known s) =>
     Has One p f (Labeled g (Pair s a)) (Labeled h (Pair s b)) (g a) (h b)
   where
     optic' _ = dimap (\(Labeled a) -> a) (fmap Labeled)
@@ -170,7 +173,7 @@ instance (Profunctor p, Functor f, KnownSymbol s) =>
 
 #ifdef DataPolyKinds
 ------------------------------------------------------------------------------
-instance (Profunctor p, Functor f, KnownSymbol s) => 
+instance __OVERLAPPABLE__ (Profunctor p, Functor f, Known s) =>
     Has s p f (Labeled g (Pair s a)) (Labeled h (Pair s b)) (g a) (h b)
   where
     optic' _ = _1

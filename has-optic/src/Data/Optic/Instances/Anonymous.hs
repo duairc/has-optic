@@ -67,7 +67,8 @@ import           Data.Profunctor (Profunctor, dimap)
 
 -- types ---------------------------------------------------------------------
 import           GHC.TypeLits.Compat ((:-), One)
-import           Type.Meta (Known, Proxy (Proxy))
+import           Type.Meta (Known)
+import           Type.Meta.Proxy (Proxy (Proxy))
 import           Type.Tuple.Pair (Pair)
 
 

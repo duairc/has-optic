@@ -28,6 +28,7 @@ description:
   audience this package is aimed for) won't necessarily need these instances.)
 
 extra-source-files:
+  include/*.h,
   CONTRIBUTORS,
   LICENSE
 

@@ -27,6 +27,7 @@ description:
   @has-optic-core@ package instead.)
 
 extra-source-files:
+  include/*.h,
   CONTRIBUTORS,
   LICENSE
 
